@@ -1,0 +1,44 @@
+// Custom US-Czech hybrid keyboard layout
+// Author: Rejnek
+// Base: US QWERTY with Czech diacritics on number row
+//
+// Number row: ˇ ě š č ř ž ý á í ´ (dead caron and acute for composing)
+// AltGr+; for ů
+// Shift: US symbols (! @ # $ % ^ & * ( ))
+// AltGr: Numbers (1 2 3 4 5 6 7 8 9 0)
+
+default partial alphanumeric_keys
+xkb_symbols "basic" {
+
+    name[Group1] = "English (US-Czech hybrid)";
+
+    include "us(basic)"
+
+    // Number row with Czech diacritics
+    // Key 1: dead caron (ˇ) for composing š, č, ř, ž, ě, ď, ť, ň
+    key <AE01> { [ dead_caron,      exclam,    1,  NoSymbol ] };
+    // Key 2: ě
+    key <AE02> { [ ecaron,          at,        2,  NoSymbol ] };
+    // Key 3: š
+    key <AE03> { [ scaron,          numbersign, 3, NoSymbol ] };
+    // Key 4: č
+    key <AE04> { [ ccaron,          dollar,    4,  NoSymbol ] };
+    // Key 5: ř
+    key <AE05> { [ rcaron,          percent,   5,  NoSymbol ] };
+    // Key 6: ž
+    key <AE06> { [ zcaron,          asciicircum, 6, NoSymbol ] };
+    // Key 7: ý
+    key <AE07> { [ yacute,          ampersand, 7,  NoSymbol ] };
+    // Key 8: á
+    key <AE08> { [ aacute,          asterisk,  8,  NoSymbol ] };
+    // Key 9: í
+    key <AE09> { [ iacute,          parenleft, 9,  NoSymbol ] };
+    // Key 0: dead acute (´) for composing é, á, í, ó, ú, ý
+    key <AE10> { [ dead_acute,      parenright, 0, NoSymbol ] };
+
+    // Semicolon key: ů on AltGr
+    key <AC10> { [ semicolon,       colon,      uring, NoSymbol ] };
+
+    // Include AltGr functionality (level3 shift)
+    include "level3(ralt_switch)"
+};

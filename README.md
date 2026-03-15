@@ -10,7 +10,7 @@ Base layout is US QWERTY. The number row is modified as follows:
 
 | Key | Default | Shift | AltGr |
 |-----|---------|-------|-------|
-| `   | `       | ~     | (US)  |
+| `   | `       | ~     |   	|
 | 1   | ˇ (dead)| !     | 1     |
 | 2   | ě       | @     | 2     |
 | 3   | š       | #     | 3     |

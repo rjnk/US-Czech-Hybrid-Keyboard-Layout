@@ -1,42 +1,48 @@
 #!/bin/bash
-# Uninstallation script for us_czech_hybrid keyboard layout
-# Run as root or with sudo
+# Uninstallation script for us_czech_hybrid keyboard layout on GNOME/Wayland
+# Run as your normal user (DO NOT run as root)
 
 set -e
 
-XKB_DIR="/usr/share/X11/xkb"
+if [ "$EUID" -eq 0 ]; then
+  echo "Please do not run this script as root. Run it as your normal user."
+  exit 1
+fi
+
+XKB_DIR="$HOME/.config/xkb"
 SYMBOLS_DIR="${XKB_DIR}/symbols"
-RULES_DIR="${XKB_DIR}/rules"
 
 echo "Uninstalling us_czech_hybrid keyboard layout..."
 
 # Remove the symbols file
 if [ -f "${SYMBOLS_DIR}/us_czech_hybrid" ]; then
     rm "${SYMBOLS_DIR}/us_czech_hybrid"
-    echo "  Removed symbols file"
+    echo "  Removed symbols file from ${SYMBOLS_DIR}"
+else
+    echo "  Symbols file not found in ${SYMBOLS_DIR}"
 fi
 
-# Remove from evdev.xml
-if grep -q "us_czech_hybrid" "${RULES_DIR}/evdev.xml"; then
-    # Clean approach: use a temp file
-    python3 -c "
-import re
-with open('${RULES_DIR}/evdev.xml', 'r') as f:
-    content = f.read()
-pattern = r'\s*<layout>\s*<configItem>\s*<name>us_czech_hybrid</name>.*?</layout>'
-content = re.sub(pattern, '', content, flags=re.DOTALL)
-with open('${RULES_DIR}/evdev.xml', 'w') as f:
-    f.write(content)
-"
-    echo "  Removed from evdev.xml"
-fi
+# Remove from GNOME input sources
+echo "  Updating GNOME input sources..."
+CURRENT_SOURCES=$(gsettings get org.gnome.desktop.input-sources sources)
 
-# Remove from evdev.lst
-if grep -q "us_czech_hybrid" "${RULES_DIR}/evdev.lst"; then
-    sed -i '/us_czech_hybrid/d' "${RULES_DIR}/evdev.lst"
-    echo "  Removed from evdev.lst"
+if echo "$CURRENT_SOURCES" | grep -q "'us_czech_hybrid'"; then
+    # Use python to cleanly remove the tuple from the gsettings array string
+    NEW_SOURCES=$(python3 -c "
+import ast
+sources_str = \"$CURRENT_SOURCES\".replace('@a(ss) ', '')
+try:
+    sources = ast.literal_eval(sources_str)
+    sources = [s for s in sources if s[1] != 'us_czech_hybrid']
+    print(str(sources))
+except Exception as e:
+    print(sources_str)
+")
+    gsettings set org.gnome.desktop.input-sources sources "$NEW_SOURCES"
+    echo "  Removed layout from GNOME settings."
+else
+    echo "  Layout was not found in GNOME settings."
 fi
 
 echo ""
 echo "Uninstallation complete!"
-echo "You may need to log out and back in for changes to take effect."

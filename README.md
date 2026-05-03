@@ -45,7 +45,7 @@ sudo ./install.sh
 ## Uninstallation
 
 ```bash
-sudo ./uninstall.sh
+./uninstall.sh
 ```
 
 ## License

@@ -1,52 +1,51 @@
 #!/bin/bash
-# Installation script for us_czech_hybrid keyboard layout
-# Run as root or with sudo
+# Installation script for us_czech_hybrid keyboard layout on GNOME/Wayland
+# Run as your normal user (DO NOT run as root)
 
 set -e
 
-XKB_DIR="/usr/share/X11/xkb"
+if [ "$EUID" -eq 0 ]; then
+  echo "Please do not run this script as root. Run it as your normal user."
+  exit 1
+fi
+
+XKB_DIR="$HOME/.config/xkb"
 SYMBOLS_DIR="${XKB_DIR}/symbols"
-RULES_DIR="${XKB_DIR}/rules"
 
-echo "Installing us_czech_hybrid keyboard layout..."
+echo "Installing us_czech_hybrid keyboard layout for Wayland..."
 
-# Install the symbols file
-install -m 644 us_czech_hybrid "${SYMBOLS_DIR}/us_czech_hybrid"
-echo "  Installed symbols file"
+# 1. Create the user-local XKB directory structure
+mkdir -p "$SYMBOLS_DIR"
 
-# Backup and patch evdev.xml if not already patched
-if ! grep -q "us_czech_hybrid" "${RULES_DIR}/evdev.xml"; then
-    cp "${RULES_DIR}/evdev.xml" "${RULES_DIR}/evdev.xml.backup"
-    # Insert before the closing </layoutList> tag
-    sed -i '/<\/layoutList>/i \
-    <layout>\
-      <configItem>\
-        <name>us_czech_hybrid</name>\
-        <shortDescription>enCZ</shortDescription>\
-        <description>English (US-Czech hybrid)</description>\
-        <languageList>\
-          <iso639Id>eng</iso639Id>\
-          <iso639Id>ces</iso639Id>\
-        </languageList>\
-      </configItem>\
-    </layout>' "${RULES_DIR}/evdev.xml"
-    echo "  Patched evdev.xml"
+# 2. Copy the symbols file
+cp us_czech_hybrid "${SYMBOLS_DIR}/us_czech_hybrid"
+echo "  Installed symbols file to ${SYMBOLS_DIR}/us_czech_hybrid"
+
+# 3. Add to GNOME input sources
+echo "  Updating GNOME input sources..."
+
+# Get current sources
+CURRENT_SOURCES=$(gsettings get org.gnome.desktop.input-sources sources)
+
+# Check if it's already in the sources
+if echo "$CURRENT_SOURCES" | grep -q "'us_czech_hybrid'"; then
+    echo "  Layout is already present in GNOME settings."
 else
-    echo "  evdev.xml already contains us_czech_hybrid entry"
+    # If sources is empty or just @a(ss) []
+    if [ "$CURRENT_SOURCES" = "@a(ss) []" ]; then
+        gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us_czech_hybrid')]"
+    else
+        # Append to existing sources
+        NEW_SOURCES=$(echo "$CURRENT_SOURCES" | sed "s/]/, ('xkb', 'us_czech_hybrid')]/")
+        gsettings set org.gnome.desktop.input-sources sources "$NEW_SOURCES"
+    fi
+    echo "  Added layout to GNOME settings."
 fi
 
-# Backup and patch evdev.lst if not already patched
-if ! grep -q "us_czech_hybrid" "${RULES_DIR}/evdev.lst"; then
-    cp "${RULES_DIR}/evdev.lst" "${RULES_DIR}/evdev.lst.backup"
-    # Add to the layout section
-    sed -i '/^! layout$/a\  us_czech_hybrid       English (US-Czech hybrid)' "${RULES_DIR}/evdev.lst"
-    echo "  Patched evdev.lst"
-else
-    echo "  evdev.lst already contains us_czech_hybrid entry"
-fi
+# Enable showing all sources if it's hidden in UI (useful for some versions of GNOME)
+gsettings set org.gnome.desktop.input-sources show-all-sources true
 
 echo ""
 echo "Installation complete!"
-echo "You may need to log out and back in, or run:"
-echo "  gsettings reset org.gnome.desktop.input-sources sources"
-echo "Then add the layout from GNOME Settings > Keyboard > Input Sources"
+echo "The layout is installed locally for your user."
+echo "You can manage it in Settings > Keyboard > Input Sources."

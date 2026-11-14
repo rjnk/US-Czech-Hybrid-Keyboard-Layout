@@ -39,6 +39,7 @@ xkb_symbols "basic" {
     // Semicolon key: ů on AltGr
     key <AC10> { [ semicolon,       colon,      uring, NoSymbol ] };
 
-    // Include AltGr functionality (level3 shift)
+    // Both Alt keys choose level 3
     include "level3(ralt_switch)"
+    include "level3(lalt_switch)"
 };

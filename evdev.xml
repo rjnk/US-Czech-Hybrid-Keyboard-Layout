@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xkbConfigRegistry version="1.1">
+  <layoutList>
+    <layout>
+      <configItem>
+        <name>us_czech_hybrid</name>
+        <shortDescription>enCZ</shortDescription>
+        <description>English (US-Czech hybrid)</description>
+        <languageList>
+          <iso639Id>eng</iso639Id>
+          <iso639Id>ces</iso639Id>
+        </languageList>
+      </configItem>
+      <variantList/>
+    </layout>
+  </layoutList>
+</xkbConfigRegistry>

@@ -32,20 +32,19 @@ Base layout is US QWERTY. The number row is modified as follows:
 ## Installation
 
 ```bash
-sudo ./install.sh
+sudo ./install.fish
 ```
 
 ### After Installation
 
-1. Log out and log back in (or restart)
-2. Open GNOME Settings → Keyboard → Input Sources
-3. Click "+" and search for "Czech hybrid" or "enCZ"
-4. Add "English (US-Czech hybrid)"
+1. Open GNOME Settings → Keyboard → Input Sources (or restart/re-log if needed)
+2. Click "+" and search for "Czech hybrid" or "enCZ"
+3. Add "English (US-Czech hybrid)"
 
 ## Uninstallation
 
 ```bash
-./uninstall.sh
+sudo ./uninstall.fish
 ```
 
 ## License

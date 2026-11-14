@@ -1,0 +1,45 @@
+name: Build release RPM
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rolling-release
+  cancel-in-progress: false
+
+jobs:
+  rpm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Build on Fedora 45
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src -e GITHUB_RUN_NUMBER fedora:45 bash -euc '
+            dnf install -y rpm-build
+            rpmbuild -bb --define "_topdir /src/build" --define "_sourcedir /src" \
+              --define "build_number $GITHUB_RUN_NUMBER" us-czech-hybrid.spec
+            cp build/RPMS/noarch/us-czech-hybrid-*.rpm build/us-czech-hybrid.noarch.rpm
+          '
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          notes="Built from $GITHUB_SHA (build $GITHUB_RUN_NUMBER)."
+          if gh release view rolling > /dev/null 2>&1; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/rolling" \
+              -f sha="$GITHUB_SHA" -F force=true
+            gh release upload rolling build/us-czech-hybrid.noarch.rpm --clobber
+            gh release edit rolling --title "Latest build" --notes "$notes" --latest
+          else
+            gh release create rolling build/us-czech-hybrid.noarch.rpm \
+              --target "$GITHUB_SHA" --title "Latest build" --notes "$notes" --latest
+          fi

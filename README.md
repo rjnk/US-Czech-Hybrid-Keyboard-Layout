@@ -33,21 +33,11 @@ Note that both Left Alt and Right Alt (AltGr) select level 3.
 
 ## Installation
 
-For Fedora 45 / GNOME on Wayland. Requires libxkbcommon 1.13+ and
-xkeyboard-config 2.45+; DNF checks these when installing the RPM.
-
-Build and install from the repository directory:
+Install the latest release directly with DNF:
 
 ```bash
-sudo dnf install rpm-build
-rpmbuild -bb --define "_topdir $PWD/build" --define "_sourcedir $PWD" us-czech-hybrid.spec
-sudo dnf install ./build/RPMS/noarch/us-czech-hybrid-*.rpm
+sudo dnf install https://github.com/rjnk/US-Czech-Hybrid-Keyboard-Layout/releases/latest/download/us-czech-hybrid.noarch.rpm
 ```
-
-The package installs only its own files under
-`/usr/share/xkeyboard-config.d/us-czech-hybrid/`, using the standard
-[XKB extension packaging mechanism](https://xkbcommon.org/doc/current/packaging-keyboard-layouts.html).
-It does not edit Fedora's keyboard database. Fish is not required.
 
 ### After Installation
 

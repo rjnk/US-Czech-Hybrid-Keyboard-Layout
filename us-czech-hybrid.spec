@@ -1,6 +1,6 @@
 Name:           us-czech-hybrid
 Version:        1.0
-Release:        1%{?dist}
+Release:        1%{?build_number:.%{build_number}}%{?dist}
 Summary:        US QWERTY keyboard layout with Czech diacritics
 License:        MIT
 BuildArch:      noarch
